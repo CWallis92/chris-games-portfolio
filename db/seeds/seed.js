@@ -9,22 +9,6 @@ const {
 const seed = async (data) => {
   const { categoryData, commentData, reviewData, userData } = data;
 
-  /* THE OLD WAY! */
-  // return db
-  //   .query('DROP TABLE IF EXISTS comments;')
-  //   .then(()=>{
-  //     return db.query('DROP TABLE IF EXISTS reviews;')
-  //   })
-  //   .then(()=>{
-  //     return db.query('DROP TABLE IF EXISTS users;')
-  //   })
-  //   .then(()=>{
-  //     return db.query('DROP TABLE IF EXISTS categories;')
-  //   })
-  //   .then(()=>{// 1. create tables
-  //     console.log('all tables dropped')
-  //   })
-
   await db.query("DROP TABLE IF EXISTS comments;");
 
   await db.query("DROP TABLE IF EXISTS reviews;");
@@ -33,9 +17,8 @@ const seed = async (data) => {
 
   await db.query("DROP TABLE IF EXISTS categories;");
 
-  console.log("all tables dropped");
+  console.log("All tables dropped");
 
-  // 1. create tables
   await db.query(`
       CREATE TABLE categories (
         slug VARCHAR(40) UNIQUE PRIMARY KEY,
@@ -76,9 +59,8 @@ const seed = async (data) => {
       );
     `);
 
-  console.log("All table created");
+  console.log("All tables created");
 
-  // 2. insert data
   const formattedCategoriesData = formatCategoriesData(categoryData);
   const categoriesInsertString = format(
     `
@@ -91,7 +73,6 @@ const seed = async (data) => {
     formattedCategoriesData
   );
   const categoriesTable = await db.query(categoriesInsertString);
-  // console.log(categoriesTable.rows);
 
   const formattedUsersData = formatUsersData(userData);
   const usersInsertString = format(
@@ -105,7 +86,6 @@ const seed = async (data) => {
     formattedUsersData
   );
   const usersTable = await db.query(usersInsertString);
-  //console.log(usersTable.rows)
 
   const formattedReviewsData = formatReviewsData(reviewData);
   const reviewsInsertString = format(
@@ -119,7 +99,6 @@ const seed = async (data) => {
     formattedReviewsData
   );
   const reviewsTable = await db.query(reviewsInsertString);
-  //console.log(reviewsTable.rows)
 
   const formattedCommentsData = formatCommentsData(
     commentData,
@@ -136,7 +115,6 @@ const seed = async (data) => {
     formattedCommentsData
   );
   const commentsTable = await db.query(commentsInsertString);
-  //console.log(commentsTable.rows);
 };
 
 module.exports = seed;

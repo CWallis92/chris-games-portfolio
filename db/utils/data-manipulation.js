@@ -1,20 +1,17 @@
-// extract any functions you are using to manipulate your data, into this file
 exports.formatCategoriesData = (array) => {
-  const newArr = array.map(({ slug, description }) => [slug, description]);
-  return newArr;
+  return array.map(({ slug, description }) => [slug, description]);
 };
 
 exports.formatUsersData = (array) => {
-  const newArr = array.map(({ username, name, avatar_url }) => [
+  return array.map(({ username, name, avatar_url }) => [
     username,
     name,
     avatar_url,
   ]);
-  return newArr;
 };
 
 exports.formatReviewsData = (array) => {
-  const newArr = array.map(
+  return array.map(
     ({
       title,
       review_body,
@@ -35,11 +32,10 @@ exports.formatReviewsData = (array) => {
       created_at,
     ]
   );
-  return newArr;
 };
 
 exports.formatCommentsData = (commentsData, reviewsData) => {
-  const newArray = commentsData.map(
+  return commentsData.map(
     ({ body, belongs_to, created_by, votes, created_at }) => {
       const { review_id } = reviewsData.find(
         (review) => review.title === belongs_to
@@ -47,5 +43,4 @@ exports.formatCommentsData = (commentsData, reviewsData) => {
       return [created_by, review_id, votes, created_at, body];
     }
   );
-  return newArray;
 };

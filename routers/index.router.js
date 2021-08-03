@@ -1,3 +1,1 @@
-exports.categoriesRouter = require('./categories.router')
-
-
+exports.categoriesRouter = require("./categories.router");
