@@ -39,20 +39,23 @@ describe("GET /api/categories", () => {
 describe("GET /api/reviews/:review_id", () => {
   it("should return status 200, showing the review requested if it exists", () => {
     return request(app)
-      .get("/api/reviews/1")
+      .get("/api/reviews/3")
       .expect(200)
       .then(({ body }) => {
         expect(body).toEqual({
-          review_id: 1,
-          title: "Agricola",
-          designer: "Uwe Rosenberg",
-          owner: "mallionaire",
-          review_img_url:
-            "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
-          review_body: "Farmyard fun!",
-          category: "euro game",
-          created_at: "2021-01-18T00:00:00.000Z",
-          votes: 1,
+          review: {
+            review_id: 3,
+            title: "Ultimate Werewolf",
+            designer: "Akihisa Okui",
+            owner: "bainesface",
+            review_img_url:
+              "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+            review_body: "We couldn't find the werewolf!",
+            category: "social deduction",
+            created_at: "2021-01-18T00:00:00.000Z",
+            votes: 5,
+            comment_count: "3",
+          },
         });
       });
   });
@@ -72,4 +75,8 @@ describe("GET /api/reviews/:review_id", () => {
         expect(body.msg).toBe("Review not found");
       });
   });
+});
+
+describe("PATCH /api/reviews/:review_id", () => {
+  it("returns 202 accepted with the new vote count", () => {});
 });
