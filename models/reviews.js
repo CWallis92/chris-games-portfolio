@@ -50,3 +50,61 @@ exports.updateReviewById = async ({ review_id }, body) => {
   }
   return result.rows[0];
 };
+
+exports.selectReviews = async (query) => {
+  let tableQuery = `
+  SELECT reviews.owner, reviews.title, reviews.review_id, reviews.category, reviews.review_img_url, reviews.created_at, reviews.votes, COUNT(comments.comment_id) AS comment_count
+  FROM reviews
+  LEFT JOIN comments
+  ON comments.review_id = reviews.review_id
+  `;
+
+  // Category query
+  const uniqueCategories = await db.query(
+    `SELECT DISTINCT slug FROM categories`
+  );
+  const allowedCategories = uniqueCategories.rows.map(
+    (category) => category.slug
+  );
+  let category = decodeURIComponent(query.category);
+  if (query.category && !allowedCategories.includes(category)) {
+    return Promise.reject({ status: 400, msg: "Invalid category query" });
+  } else if (allowedCategories.includes(category)) {
+    category = category.replace("'", "''"); // Escaping apostrophes in SQL eurgh
+    tableQuery += `WHERE reviews.category = '${category}'`;
+  }
+
+  // Sorting query
+  const allowedSorts = [
+    "owner",
+    "title",
+    "review_id",
+    "category",
+    "review_img_url",
+    "created_at",
+    "reviews.votes",
+  ];
+  if (query.sort_by && !allowedSorts.includes(query.sort_by)) {
+    return Promise.reject({ status: 400, msg: "Invalid sort query" });
+  }
+
+  // Order query
+  if (query.order && !["asc", "desc"].includes(query.order.toLowerCase())) {
+    return Promise.reject({ status: 400, msg: "Invalid order query" });
+  }
+
+  // Implement sorting and grouping
+  tableQuery += `
+  GROUP BY reviews.review_id
+  ORDER BY reviews.${query.sort_by || "created_at"}
+  ${query.order || "DESC"}
+  `;
+  const result = await db.query(tableQuery);
+  if (result.rowCount === 0) {
+    return Promise.reject({
+      status: 404,
+      msg: "No reviews found",
+    });
+  }
+  return result.rows;
+};

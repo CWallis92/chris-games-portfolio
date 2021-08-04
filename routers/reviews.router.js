@@ -1,7 +1,13 @@
 const express = require("express");
-const { getReviewById, patchReviewById } = require("../controllers/reviews");
+const {
+  getReviewById,
+  patchReviewById,
+  getReviews,
+} = require("../controllers/reviews");
 const { disallowedMethods } = require("../errors");
 const reviewsRouter = express.Router();
+
+reviewsRouter.route("/").get(getReviews).all(disallowedMethods);
 
 reviewsRouter
   .route("/:review_id")

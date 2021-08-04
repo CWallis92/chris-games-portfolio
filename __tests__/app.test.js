@@ -1,3 +1,4 @@
+require("jest-sorted");
 const request = require("supertest");
 const db = require("../db/connection.js");
 const testData = require("../db/data/test-data/index.js");
@@ -20,63 +21,272 @@ describe("Unknown endpoints", () => {
   });
 });
 
-describe("GET /api/categories", () => {
-  it("should return status 200, showing all categories", () => {
-    return request(app)
-      .get("/api/categories")
-      .expect(200)
-      .then(({ body }) => {
-        body.categories.forEach((category) => {
-          expect(category).toMatchObject({
-            slug: expect.any(String),
-            description: expect.any(String),
+describe("/api/categories", () => {
+  describe("GET", () => {
+    it("should return status 200, showing all categories", () => {
+      return request(app)
+        .get("/api/categories")
+        .expect(200)
+        .then(({ body }) => {
+          body.categories.forEach((category) => {
+            expect(category).toMatchObject({
+              slug: expect.any(String),
+              description: expect.any(String),
+            });
           });
         });
-      });
+    });
   });
-});
-
-describe("GET /api/reviews/:review_id", () => {
-  it("should return status 200, showing the review requested if it exists", () => {
-    return request(app)
-      .get("/api/reviews/3")
-      .expect(200)
-      .then(({ body }) => {
-        expect(body).toEqual({
-          review: {
-            review_id: 3,
-            title: "Ultimate Werewolf",
-            designer: "Akihisa Okui",
-            owner: "bainesface",
-            review_img_url:
-              "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
-            review_body: "We couldn't find the werewolf!",
-            category: "social deduction",
-            created_at: "2021-01-18T00:00:00.000Z",
-            votes: 5,
-            comment_count: "3",
-          },
+  describe("All other methods", () => {
+    it("returns 405 method not allowed error", () => {
+      return request(app)
+        .post("/api/categories")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Method not allowed on this endpoint");
         });
-      });
-  });
-  it("returns a 400 bad request when review_id is not of the correct type", () => {
-    return request(app)
-      .get("/api/reviews/notAReview")
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
-      });
-  });
-  it("returns 404 not found when number for review_id is too large", () => {
-    return request(app)
-      .get("/api/reviews/1007")
-      .expect(404)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Review not found");
-      });
+    });
   });
 });
 
-describe("PATCH /api/reviews/:review_id", () => {
-  it("returns 202 accepted with the new vote count", () => {});
+describe("/api/reviews/:review_id", () => {
+  describe("GET", () => {
+    it("should return status 200, showing the review requested if it exists", () => {
+      return request(app)
+        .get("/api/reviews/3")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toEqual({
+            review: {
+              review_id: 3,
+              title: "Ultimate Werewolf",
+              designer: "Akihisa Okui",
+              owner: "bainesface",
+              review_img_url:
+                "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+              review_body: "We couldn't find the werewolf!",
+              category: "social deduction",
+              created_at: "2021-01-18T00:00:00.000Z",
+              votes: 5,
+              comment_count: "3",
+            },
+          });
+        });
+    });
+    it("returns a 400 bad request when review_id is not of the correct type", () => {
+      return request(app)
+        .get("/api/reviews/notAReview")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request");
+        });
+    });
+    it("returns 404 not found when number for review_id is too large", () => {
+      return request(app)
+        .get("/api/reviews/1007")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Review not found");
+        });
+    });
+  });
+  describe("PATCH", () => {
+    it("returns 202 accepted with the new vote count", () => {
+      return request(app)
+        .patch("/api/reviews/3")
+        .send({ inc_votes: 100 })
+        .expect(202)
+        .then(({ body }) => {
+          expect(body).toEqual({
+            review: {
+              review_id: 3,
+              title: "Ultimate Werewolf",
+              designer: "Akihisa Okui",
+              owner: "bainesface",
+              review_img_url:
+                "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+              review_body: "We couldn't find the werewolf!",
+              category: "social deduction",
+              created_at: "2021-01-18T00:00:00.000Z",
+              votes: 105,
+            },
+          });
+        });
+    });
+    it("returns 400 bad request when review_id is not a number", () => {
+      return request(app)
+        .patch("/api/reviews/notAReview")
+        .send({ inc_votes: 100 })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request");
+        });
+    });
+    it("returns 404 not found when number for review_id is too large", () => {
+      return request(app)
+        .patch("/api/reviews/1007")
+        .send({ inc_votes: 100 })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Review not found");
+        });
+    });
+    it("returns 400 bad request when body does not have an inc_votes property", () => {
+      return request(app)
+        .patch("/api/reviews/3")
+        .send({ wrongKey: 100 })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe(
+            "Request only accepts JSON with 'inc_votes' property"
+          );
+        });
+    });
+    it("returns 400 bad request when inc_votes property is not a number/invalid", () => {
+      return request(app)
+        .patch("/api/reviews/3")
+        .send({ inc_votes: "nope" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request");
+        });
+    });
+    it("returns 422 unprocessable entity when additional props are listed in the body", () => {
+      return request(app)
+        .patch("/api/reviews/3")
+        .send({ inc_votes: 100, something: "else" })
+        .expect(422)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Unprocessable entity found in request body");
+        });
+    });
+  });
+  describe("All other methods", () => {
+    it("returns 405 method not allowed error", () => {
+      return request(app)
+        .post("/api/reviews/3")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Method not allowed on this endpoint");
+        });
+    });
+  });
+});
+
+describe("/api/reviews", () => {
+  describe("GET", () => {
+    it("returns 200 with all reviews when no queries are given, default sorted by date created", () => {
+      return request(app)
+        .get("/api/reviews")
+        .expect(200)
+        .then(({ body }) => {
+          expect(Object.keys(body)).toEqual(["reviews"]);
+          expect(body.reviews).toHaveLength(13);
+          body.reviews.forEach((review) => {
+            expect(review).toMatchObject({
+              owner: expect.any(String),
+              title: expect.any(String),
+              review_id: expect.any(Number),
+              category: expect.any(String),
+              review_img_url: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(String),
+            });
+          });
+          expect(body.reviews).toBeSortedBy("created_at", {
+            coerce: true,
+          });
+        });
+    });
+    describe("Param: sort_by", () => {
+      it("sorts the response in descending order against the given column", () => {
+        return request(app)
+          .get("/api/reviews?sort_by=category")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.reviews).toBeSortedBy("category", { descending: true });
+          });
+      });
+      it("returns 400 bad request when the sort_by param is not in the reviews table columns", () => {
+        return request(app)
+          .get("/api/reviews?sort_by=badCol")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid sort query");
+          });
+      });
+    });
+    describe("Param: order", () => {
+      it("correctly orders ascending", () => {
+        return request(app)
+          .get("/api/reviews?order=asc")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.reviews).toBeSortedBy("created_at", {
+              descending: false,
+            });
+          });
+      });
+      it("correctly orders descending", () => {
+        return request(app)
+          .get("/api/reviews?sort_by=review_id&order=desc")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.reviews).toBeSortedBy("review_id", {
+              descending: true,
+            });
+          });
+      });
+      it("returns 400 bad request when order param is not valid", () => {
+        return request(app)
+          .get("/api/reviews?order=bad")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid order query");
+          });
+      });
+    });
+    describe("Param: category", () => {
+      it("returns 200 with a table filtered to the given category", () => {
+        return request(app)
+          .get("/api/reviews?category=social%20deduction")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.reviews).toHaveLength(11);
+            expect(
+              body.reviews.every(
+                (review) => review.category === "social deduction"
+              )
+            ).toBe(true);
+          });
+      });
+      it("returns 400 bad request when category to filter does not exist", () => {
+        return request(app)
+          .get("/api/reviews?category=bad")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid category query");
+          });
+      });
+      it("returns 404 not found when category has no values in reviews table", () => {
+        return request(app)
+          .get("/api/reviews?category=children%27s%20games")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("No reviews found");
+          });
+      });
+    });
+  });
+  describe("All other methods", () => {
+    it("returns 405 method not allowed error", () => {
+      return request(app)
+        .post("/api/reviews")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Method not allowed on this endpoint");
+        });
+    });
+  });
 });
