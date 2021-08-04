@@ -66,12 +66,11 @@ exports.selectReviews = async (query) => {
   const allowedCategories = uniqueCategories.rows.map(
     (category) => category.slug
   );
-  let category = decodeURIComponent(query.category);
+  const category = query.category ? decodeURIComponent(query.category) : null;
   if (query.category && !allowedCategories.includes(category)) {
     return Promise.reject({ status: 400, msg: "Invalid category query" });
   } else if (allowedCategories.includes(category)) {
-    category = category.replace("'", "''"); // Escaping apostrophes in SQL eurgh
-    tableQuery += `WHERE reviews.category = '${category}'`;
+    tableQuery += `WHERE reviews.category = $1`;
   }
 
   // Sorting query
@@ -99,7 +98,11 @@ exports.selectReviews = async (query) => {
   ORDER BY reviews.${query.sort_by || "created_at"}
   ${query.order || "DESC"}
   `;
-  const result = await db.query(tableQuery);
+
+  // Handle escaping in query
+  const queryParams = category !== null ? [category] : [];
+
+  const result = await db.query(tableQuery, queryParams);
   if (result.rowCount === 0) {
     return Promise.reject({
       status: 404,
