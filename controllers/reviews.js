@@ -1,11 +1,10 @@
-/*
-const postRestaurant = async (req, res, next) => {
-    const restaurant = req.body;
+const { selectReviewById } = require("../models/reviews");
+
+exports.getReviewById = async (req, res, next) => {
   try {
-    const restaurant = await insertRestaurant(restaurant)
-    res.status(201).send({ restaurant });
+    const review = await selectReviewById(req.params);
+    res.status(200).send(review);
   } catch (err) {
-      next(err);
-  };
-}
-*/
+    next(err);
+  }
+};

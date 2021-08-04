@@ -1,5 +1,5 @@
 const express = require("express");
-const { categoriesRouter } = require("./index.router");
+const { categoriesRouter, reviewsRouter } = require(".");
 const apiRouter = express.Router();
 
 apiRouter.route("/").get(() => {
@@ -7,5 +7,7 @@ apiRouter.route("/").get(() => {
 });
 
 apiRouter.use("/categories", categoriesRouter);
+
+apiRouter.use("/reviews", reviewsRouter);
 
 module.exports = apiRouter;

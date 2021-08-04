@@ -9,8 +9,12 @@ const app = express();
 
 app.use("/api", apiRouter);
 
-app.all("*", () => {
-  console.log("request made!");
+app.all("*", (req, res) => {
+  res
+    .status(404)
+    .send({
+      msg: "Endpoint not found. Make a request to /api to see a list of available endpoints",
+    });
 });
 
 // error handling

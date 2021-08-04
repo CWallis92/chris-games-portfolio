@@ -1,3 +1,18 @@
+const db = require("../db/connection");
+
+exports.selectReviewById = async ({ review_id }) => {
+  const result = await db.query(`SELECT * FROM reviews WHERE review_id = $1;`, [
+    review_id,
+  ]);
+  if (result.rowCount === 0) {
+    return Promise.reject({
+      status: 404,
+      msg: "Review not found",
+    });
+  }
+  return result.rows[0];
+};
+
 /*
 const insertRestaurant = (restaurant) => {
   const allowedKeys = ['restaurant_name', 'area_id', 'cuisine', 'website'];

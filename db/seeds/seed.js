@@ -17,7 +17,7 @@ const seed = async (data) => {
 
   await db.query("DROP TABLE IF EXISTS categories;");
 
-  console.log("All tables dropped");
+  // console.log("All tables dropped");
 
   await db.query(`
       CREATE TABLE categories (
@@ -59,7 +59,7 @@ const seed = async (data) => {
       );
     `);
 
-  console.log("All tables created");
+  // console.log("All tables created");
 
   const formattedCategoriesData = formatCategoriesData(categoryData);
   const categoriesInsertString = format(
