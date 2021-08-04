@@ -1,3 +1,10 @@
+exports.disallowedMethods = (req, res, next) => {
+  next({
+    status: 405,
+    msg: "Method not allowed on this endpoint",
+  });
+};
+
 exports.handleCustomErrors = (err, req, res, next) => {
   if (err.status && err.msg) {
     res.status(err.status).send({ msg: err.msg });

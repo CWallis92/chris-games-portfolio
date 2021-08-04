@@ -7,14 +7,14 @@ const {
 } = require("./errors/index");
 const app = express();
 
+app.use(express.json());
+
 app.use("/api", apiRouter);
 
 app.all("*", (req, res) => {
-  res
-    .status(404)
-    .send({
-      msg: "Endpoint not found. Make a request to /api to see a list of available endpoints",
-    });
+  res.status(404).send({
+    msg: "Endpoint not found. Make a request to /api to see a list of available endpoints",
+  });
 });
 
 // error handling
