@@ -59,19 +59,7 @@ exports.selectReviews = async (query) => {
   ON comments.review_id = reviews.review_id
   `;
 
-  // Category query
-  const uniqueCategories = await db.query(
-    `SELECT DISTINCT slug FROM categories`
-  );
-  const allowedCategories = uniqueCategories.rows.map(
-    (category) => category.slug
-  );
-  const category = query.category ? decodeURIComponent(query.category) : null;
-  if (query.category && !allowedCategories.includes(category)) {
-    return Promise.reject({ status: 400, msg: "Invalid category query" });
-  } else if (allowedCategories.includes(category)) {
-    tableQuery += `WHERE reviews.category = $1`;
-  }
+  const queryParams = [];
 
   // Sorting query
   const allowedSorts = [
@@ -92,15 +80,27 @@ exports.selectReviews = async (query) => {
     return Promise.reject({ status: 400, msg: "Invalid order query" });
   }
 
+  // Category query
+  const uniqueCategories = await db.query(
+    `SELECT DISTINCT slug FROM categories`
+  );
+  const allowedCategories = uniqueCategories.rows.map(
+    (category) => category.slug
+  );
+  if (query.category) {
+    const category = decodeURIComponent(query.category);
+    queryParams.push(category);
+    if (!allowedCategories.includes(category)) {
+      return Promise.reject({ status: 400, msg: "Invalid category query" });
+    } else tableQuery += `WHERE reviews.category = $1`;
+  }
+
   // Implement sorting and grouping
   tableQuery += `
   GROUP BY reviews.review_id
   ORDER BY reviews.${query.sort_by || "created_at"}
   ${query.order || "DESC"}
   `;
-
-  // Handle escaping in query
-  const queryParams = category !== null ? [category] : [];
 
   const result = await db.query(tableQuery, queryParams);
   if (result.rowCount === 0) {
