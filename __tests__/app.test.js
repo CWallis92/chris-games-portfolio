@@ -509,3 +509,31 @@ describe("/api/comments/:comment_id", () => {
     });
   });
 });
+
+describe("/api/users", () => {
+  describe("GET", () => {
+    it("returns 200 with an array of usernames", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.hasOwnProperty("users")).toBe(true);
+          body.users.forEach((username) => {
+            expect(username).toMatchObject({
+              username: expect.any(String),
+            });
+          });
+        });
+    });
+  });
+  describe("All other methods", () => {
+    it("returns 405 method not allowed error", () => {
+      return request(app)
+        .post("/api/categories")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Method not allowed on this endpoint");
+        });
+    });
+  });
+});

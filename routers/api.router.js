@@ -1,5 +1,10 @@
 const express = require("express");
-const { categoriesRouter, reviewsRouter, commentsRouter } = require(".");
+const {
+  categoriesRouter,
+  reviewsRouter,
+  commentsRouter,
+  usersRouter,
+} = require(".");
 const { disallowedMethods } = require("../errors");
 const apiRouter = express.Router();
 
@@ -29,6 +34,8 @@ apiRouter
   .all(disallowedMethods);
 
 apiRouter.use("/categories", categoriesRouter);
+
+apiRouter.use("/users", usersRouter);
 
 apiRouter.use("/reviews", reviewsRouter);
 
