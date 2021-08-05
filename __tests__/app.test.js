@@ -470,3 +470,42 @@ describe("/api", () => {
     });
   });
 });
+
+describe("/api/comments/:comment_id", () => {
+  describe("DELETE", () => {
+    it("returns 204 when comment exists", () => {
+      return request(app)
+        .delete("/api/comments/1")
+        .expect(204)
+        .then(({ body }) => {
+          expect(body).toEqual({});
+        });
+    });
+    it("returns a 400 bad request when comment_id is not of the correct type", () => {
+      return request(app)
+        .delete("/api/comments/notAComment")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request");
+        });
+    });
+    it("returns 404 not found when number for review_id is too large", () => {
+      return request(app)
+        .delete("/api/comments/1007")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Comment not found");
+        });
+    });
+  });
+  describe("All other methods", () => {
+    it("returns 405 method not allowed error", () => {
+      return request(app)
+        .put("/api")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Method not allowed on this endpoint");
+        });
+    });
+  });
+});

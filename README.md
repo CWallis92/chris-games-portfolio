@@ -34,3 +34,11 @@ XX
 
 - **Node.js:** XX
 - **Postgres:** XX
+
+---
+
+## Postman (Coming soon!)
+
+I made a Postman collection for all of the Endpoints.
+
+Get it [here]().

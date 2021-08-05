@@ -255,8 +255,8 @@ Responds with:
 - If you _have_ already hosted your app at this point, remember to push up to `heroku` your updated code
 - If you haven't already hosted your app, now is the time! Follow the instructions in [hosting.md](./hosting.md)
 - Write your README, including the following information:
-  - [ ] Link to hosted version
-  - [ ] Write a summary of what the project is
+  - [x] Link to hosted version
+  - [x] Write a summary of what the project is
   - [ ] Provide clear instructions of how to clone, install dependencies, seed local database, and run tests
   - [ ] Include information about how to create the two `.env` files
   - [ ] Specify minimum versions of `Node.js` and `Postgres` needed to run the project

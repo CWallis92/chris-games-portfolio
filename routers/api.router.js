@@ -1,5 +1,5 @@
 const express = require("express");
-const { categoriesRouter, reviewsRouter } = require(".");
+const { categoriesRouter, reviewsRouter, commentsRouter } = require(".");
 const { disallowedMethods } = require("../errors");
 const apiRouter = express.Router();
 
@@ -31,5 +31,7 @@ apiRouter
 apiRouter.use("/categories", categoriesRouter);
 
 apiRouter.use("/reviews", reviewsRouter);
+
+apiRouter.use("/comments", commentsRouter);
 
 module.exports = apiRouter;
