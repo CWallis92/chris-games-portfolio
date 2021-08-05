@@ -498,6 +498,75 @@ describe("/api/comments/:comment_id", () => {
         });
     });
   });
+  describe("PATCH", () => {
+    it("returns 202 with the comment and its updated votes", () => {
+      return request(app)
+        .patch("/api/comments/1")
+        .send({
+          inc_votes: 100,
+        })
+        .expect(202)
+        .then(({ body }) => {
+          expect(body).toEqual({
+            comment: {
+              comment_id: 1,
+              author: "bainesface",
+              review_id: 2,
+              votes: 116,
+              created_at: "2017-11-22T00:00:00.000Z",
+              body: "I loved this game too!",
+            },
+          });
+        });
+    });
+    it("returns 400 bad request when comment_id is not a number", () => {
+      return request(app)
+        .patch("/api/comments/notAComment")
+        .send({ inc_votes: 100 })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request");
+        });
+    });
+    it("returns 404 not found when number for comment_id is too large", () => {
+      return request(app)
+        .patch("/api/comments/1007")
+        .send({ inc_votes: 100 })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Comment not found");
+        });
+    });
+    it("returns 400 bad request when body does not have an inc_votes property", () => {
+      return request(app)
+        .patch("/api/comments/3")
+        .send({ wrongKey: 100 })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe(
+            "Request only accepts JSON with 'inc_votes' property"
+          );
+        });
+    });
+    it("returns 400 bad request when inc_votes property is not a number/invalid", () => {
+      return request(app)
+        .patch("/api/comments/3")
+        .send({ inc_votes: "nope" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request");
+        });
+    });
+    it("returns 422 unprocessable entity when additional props are listed in the body", () => {
+      return request(app)
+        .patch("/api/comments/3")
+        .send({ inc_votes: 100, something: "else" })
+        .expect(422)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Unprocessable entity found in request body");
+        });
+    });
+  });
   describe("All other methods", () => {
     it("returns 405 method not allowed error", () => {
       return request(app)
@@ -529,7 +598,45 @@ describe("/api/users", () => {
   describe("All other methods", () => {
     it("returns 405 method not allowed error", () => {
       return request(app)
-        .post("/api/categories")
+        .post("/api/users")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Method not allowed on this endpoint");
+        });
+    });
+  });
+});
+
+describe("/api/users/:username", () => {
+  describe("GET", () => {
+    it("returns 200 with the relevant user", () => {
+      return request(app)
+        .get("/api/users/mallionaire")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toEqual({
+            user: {
+              username: "mallionaire",
+              avatar_url:
+                "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+              name: "haz",
+            },
+          });
+        });
+    });
+    it("returns 404 not found when the user does not exist", () => {
+      return request(app)
+        .get("/api/users/1")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("User not found");
+        });
+    });
+  });
+  describe("All other methods", () => {
+    it("returns 405 method not allowed error", () => {
+      return request(app)
+        .post("/api/users/1")
         .expect(405)
         .then(({ body }) => {
           expect(body.msg).toBe("Method not allowed on this endpoint");
