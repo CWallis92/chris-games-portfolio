@@ -6,6 +6,7 @@ const {
   formatReviewsData,
   formatCommentsData,
 } = require("../utils/data-manipulation");
+
 const seed = async (data) => {
   const { categoryData, commentData, reviewData, userData } = data;
 
