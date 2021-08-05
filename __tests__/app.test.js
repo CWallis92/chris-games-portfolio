@@ -290,3 +290,183 @@ describe("/api/reviews", () => {
     });
   });
 });
+
+describe("/api/reviews/:review_id/comments", () => {
+  describe("GET", () => {
+    it("returns 200 with the comment details", () => {
+      return request(app)
+        .get("/api/reviews/3/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.hasOwnProperty("comments")).toBe(true);
+          body.comments.forEach((comment) => {
+            expect(comment).toMatchObject({
+              comment_id: expect.any(Number),
+              votes: expect.any(Number),
+              created_at: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+            });
+          });
+        });
+    });
+    it("returns a 400 bad request when review_id is not of the correct type", () => {
+      return request(app)
+        .get("/api/reviews/notAReview/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request");
+        });
+    });
+    it("returns 404 not found when number for review_id is too large", () => {
+      return request(app)
+        .get("/api/reviews/1007/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Review not found");
+        });
+    });
+    it("returns 404 not found when the review has no comments", () => {
+      return request(app)
+        .get("/api/reviews/13/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("No comments available");
+        });
+    });
+  });
+  describe("POST", () => {
+    it("returns 201 created when a new comment is sent", () => {
+      return request(app)
+        .post("/api/reviews/1/comments")
+        .send({
+          username: "mallionaire",
+          body: "This is a new review",
+        })
+        .expect(201)
+        .then(({ body }) => {
+          expect(body).toMatchObject({
+            comment: {
+              comment_id: 7,
+              votes: 0,
+              created_at: expect.any(String),
+              author: "mallionaire",
+              body: "This is a new review",
+            },
+          });
+        });
+    });
+    it("returns a 400 bad request when review_id is not of the correct type", () => {
+      return request(app)
+        .post("/api/reviews/notAReview/comments")
+        .send({
+          username: "mallionaire",
+          body: "This is a new review",
+        })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request");
+        });
+    });
+    it("returns 404 not found when number for review_id is too large", () => {
+      return request(app)
+        .post("/api/reviews/1007/comments")
+        .send({
+          username: "mallionaire",
+          body: "This is a new review",
+        })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Review not found");
+        });
+    });
+    it("returns 400 bad request when body does not have both username and body properties", () => {
+      return request(app)
+        .post("/api/reviews/3/comments")
+        .send({ wrongKey: 100 })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe(
+            "Request only accepts JSON with 'username' and 'body' properties"
+          );
+        });
+    });
+    it("returns 404 not found when username does not exist", () => {
+      return request(app)
+        .post("/api/reviews/3/comments")
+        .send({
+          username: "nope",
+          body: "Random comment",
+        })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe(
+            "User not found. Please add the user before commenting"
+          );
+        });
+    });
+    it("returns 422 unprocessable entity when additional props are listed in the body", () => {
+      return request(app)
+        .post("/api/reviews/3/comments")
+        .send({
+          username: "mallionaire",
+          body: "Review",
+          something: "else",
+        })
+        .expect(422)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Unprocessable entity found in request body");
+        });
+    });
+  });
+  describe("All other methods", () => {
+    it("returns 405 method not allowed error", () => {
+      return request(app)
+        .put("/api/reviews/1/comments")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Method not allowed on this endpoint");
+        });
+    });
+  });
+});
+
+describe("/api", () => {
+  describe("GET", () => {
+    it("returns 200 with a list of endpoints", () => {
+      return request(app)
+        .get("/api")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toMatchObject({
+            endpoints: {
+              "/api/categories": {
+                GET: expect.any(String),
+              },
+              "/api/reviews": {
+                GET: expect.any(String),
+              },
+              "/api/reviews/:review_id": {
+                GET: expect.any(String),
+                PATCH: expect.any(String),
+              },
+              "/api/reviews/:review_id/comments": {
+                GET: expect.any(String),
+                POST: expect.any(String),
+              },
+            },
+          });
+        });
+    });
+  });
+  describe("All other methods", () => {
+    it("returns 405 method not allowed error", () => {
+      return request(app)
+        .put("/api")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Method not allowed on this endpoint");
+        });
+    });
+  });
+});
