@@ -28,6 +28,7 @@ describe("/api/categories", () => {
         .get("/api/categories")
         .expect(200)
         .then(({ body }) => {
+          expect(body.categories.length > 0).toBe(true);
           body.categories.forEach((category) => {
             expect(category).toMatchObject({
               slug: expect.any(String),
@@ -299,6 +300,7 @@ describe("/api/reviews/:review_id/comments", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body.hasOwnProperty("comments")).toBe(true);
+          expect(body.comments.length > 0).toBe(true);
           body.comments.forEach((comment) => {
             expect(comment).toMatchObject({
               comment_id: expect.any(Number),
@@ -587,6 +589,7 @@ describe("/api/users", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body.hasOwnProperty("users")).toBe(true);
+          expect(body.users.length > 0).toBe(true);
           body.users.forEach((username) => {
             expect(username).toMatchObject({
               username: expect.any(String),

@@ -35,12 +35,14 @@ exports.formatReviewsData = (array) => {
 };
 
 exports.formatCommentsData = (commentsData, reviewsData) => {
+  const reviewsRef = reviewsData.reduce((accumulator, review) => {
+    accumulator[review.title] = review.review_id;
+    return accumulator;
+  }, {});
+
   return commentsData.map(
     ({ body, belongs_to, created_by, votes, created_at }) => {
-      const { review_id } = reviewsData.find(
-        (review) => review.title === belongs_to
-      );
-      return [created_by, review_id, votes, created_at, body];
+      return [created_by, reviewsRef[belongs_to], votes, created_at, body];
     }
   );
 };
