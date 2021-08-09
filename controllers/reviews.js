@@ -8,7 +8,8 @@ const {
 
 exports.getReviewById = async (req, res, next) => {
   try {
-    const review = await selectReviewById(req.params);
+    const { review_id } = req.params;
+    const review = await selectReviewById(review_id);
     res.status(200).send({ review });
   } catch (err) {
     next(err);
@@ -17,7 +18,8 @@ exports.getReviewById = async (req, res, next) => {
 
 exports.patchReviewById = async (req, res, next) => {
   try {
-    const review = await updateReviewById(req.params, req.body);
+    const { review_id } = req.params;
+    const review = await updateReviewById(review_id, req.body);
     res.status(202).send({ review });
   } catch (err) {
     next(err);
@@ -35,7 +37,8 @@ exports.getReviews = async (req, res, next) => {
 
 exports.getCommentsByReviewId = async (req, res, next) => {
   try {
-    const comments = await selectCommentsByReviewId(req.params);
+    const { review_id } = req.params;
+    const comments = await selectCommentsByReviewId(review_id);
     res.status(200).send({ comments });
   } catch (err) {
     next(err);
@@ -44,7 +47,8 @@ exports.getCommentsByReviewId = async (req, res, next) => {
 
 exports.postCommentByReviewId = async (req, res, next) => {
   try {
-    const comment = await insertCommentByReviewId(req.params, req.body);
+    const { review_id } = req.params;
+    const comment = await insertCommentByReviewId(review_id, req.body);
     res.status(201).send({ comment });
   } catch (err) {
     next(err);

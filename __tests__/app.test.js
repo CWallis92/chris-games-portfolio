@@ -152,13 +152,26 @@ describe("/api/reviews/:review_id", () => {
           expect(body.msg).toBe("Bad Request");
         });
     });
-    it("returns 422 unprocessable entity when additional props are listed in the body", () => {
+    it("returns 202 accepted and ignores unnecessary properties", () => {
       return request(app)
         .patch("/api/reviews/3")
         .send({ inc_votes: 100, something: "else" })
-        .expect(422)
+        .expect(202)
         .then(({ body }) => {
-          expect(body.msg).toBe("Unprocessable entity found in request body");
+          expect(body).toEqual({
+            review: {
+              review_id: 3,
+              title: "Ultimate Werewolf",
+              designer: "Akihisa Okui",
+              owner: "bainesface",
+              review_img_url:
+                "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+              review_body: "We couldn't find the werewolf!",
+              category: "social deduction",
+              created_at: "2021-01-18T00:00:00.000Z",
+              votes: 105,
+            },
+          });
         });
     });
   });
@@ -328,12 +341,15 @@ describe("/api/reviews/:review_id/comments", () => {
           expect(body.msg).toBe("Review not found");
         });
     });
-    it("returns 404 not found when the review has no comments", () => {
+    it("returns 200 with empty array when the review has no comments", () => {
       return request(app)
         .get("/api/reviews/13/comments")
-        .expect(404)
+        .expect(200)
         .then(({ body }) => {
-          expect(body.msg).toBe("No comments available");
+          expect(body.comments).toHaveLength(0);
+          expect(body).toEqual({
+            comments: [],
+          });
         });
     });
   });
@@ -407,7 +423,7 @@ describe("/api/reviews/:review_id/comments", () => {
           );
         });
     });
-    it("returns 422 unprocessable entity when additional props are listed in the body", () => {
+    it("returns 201 created, ignoring additional props listed in the body", () => {
       return request(app)
         .post("/api/reviews/3/comments")
         .send({
@@ -415,9 +431,17 @@ describe("/api/reviews/:review_id/comments", () => {
           body: "Review",
           something: "else",
         })
-        .expect(422)
+        .expect(201)
         .then(({ body }) => {
-          expect(body.msg).toBe("Unprocessable entity found in request body");
+          expect(body).toMatchObject({
+            comment: {
+              comment_id: 7,
+              votes: 0,
+              created_at: expect.any(String),
+              author: "mallionaire",
+              body: "Review",
+            },
+          });
         });
     });
   });
@@ -441,22 +465,7 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body).toMatchObject({
-            endpoints: {
-              "/api/categories": {
-                GET: expect.any(String),
-              },
-              "/api/reviews": {
-                GET: expect.any(String),
-              },
-              "/api/reviews/:review_id": {
-                GET: expect.any(String),
-                PATCH: expect.any(String),
-              },
-              "/api/reviews/:review_id/comments": {
-                GET: expect.any(String),
-                POST: expect.any(String),
-              },
-            },
+            endpoints: expect.any(Object),
           });
         });
     });
@@ -559,13 +568,22 @@ describe("/api/comments/:comment_id", () => {
           expect(body.msg).toBe("Bad Request");
         });
     });
-    it("returns 422 unprocessable entity when additional props are listed in the body", () => {
+    it("returns 202, ignoring additional props listed in the body", () => {
       return request(app)
-        .patch("/api/comments/3")
+        .patch("/api/comments/1")
         .send({ inc_votes: 100, something: "else" })
-        .expect(422)
+        .expect(202)
         .then(({ body }) => {
-          expect(body.msg).toBe("Unprocessable entity found in request body");
+          expect(body).toEqual({
+            comment: {
+              comment_id: 1,
+              author: "bainesface",
+              review_id: 2,
+              votes: 116,
+              created_at: "2017-11-22T00:00:00.000Z",
+              body: "I loved this game too!",
+            },
+          });
         });
     });
   });

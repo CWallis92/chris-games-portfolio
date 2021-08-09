@@ -13,20 +13,40 @@ apiRouter
   .get((req, res) => {
     res.status(200).send({
       endpoints: {
-        "/api/categories": {
-          GET: "Returns a list of all categories available, as well as their descriptions",
+        "GET /api": {
+          description:
+            "serves up a json representation of all the available endpoints of the api",
         },
-        "/api/reviews": {
-          GET: "Returns a list of reviews for board games. The endpoint accepts the following queries: 1) sort_by: specify the column name to sort the reviews (defaults to 'created_at'), 2) order: specify if the sort should be ascending (asc) or descending (desc) (defaults to desc), 3) category: filter the reviews by their category",
+        "GET /api/categories": {
+          description: "serves an array of all categories",
+          queries: [],
+          exampleResponse: {
+            categories: [
+              {
+                description:
+                  "Players attempt to uncover each other's hidden role",
+                slug: "Social deduction",
+              },
+            ],
+          },
         },
-        "/api/reviews/:review_id": {
-          GET: "Returns a single review, as specified by the review ID. Replace ':review_id' with a positive integer",
-          PATCH:
-            "Updates the specified review, incrementing the vote count by the number given. Request body must be a JSON object with a single key 'inc_votes', whose value is an integer",
-        },
-        "/api/reviews/:review_id/comments": {
-          GET: "Returns a list of comments for the given review. Replace ':review_id' with a positive integer",
-          POST: "Adds a comment to the given review. Request body must be a JSON object with keys 'username' and 'body'. 'username' must be an existing user from the database. You can view users at the '/api/users endpoint",
+        "GET /api/reviews": {
+          description: "serves an array of all reviews",
+          queries: ["category", "sort_by", "order"],
+          exampleResponse: {
+            reviews: [
+              {
+                title: "One Night Ultimate Werewolf",
+                designer: "Akihisa Okui",
+                owner: "happyamy2016",
+                review_img_url:
+                  "https://images.pexels.com/photos/5350049/pexels-photo-5350049.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+                category: "hidden-roles",
+                created_at: 1610964101251,
+                votes: 5,
+              },
+            ],
+          },
         },
       },
     });

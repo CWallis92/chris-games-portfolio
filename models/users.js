@@ -5,9 +5,9 @@ exports.selectUsers = async () => {
   return result.rows;
 };
 
-exports.selectUserByUsername = async (params) => {
+exports.selectUserByUsername = async (username) => {
   const result = await db.query(`SELECT * FROM users WHERE username = $1`, [
-    params.username,
+    username,
   ]);
   if (result.rowCount === 0) {
     return Promise.reject({

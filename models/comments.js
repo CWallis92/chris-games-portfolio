@@ -1,6 +1,6 @@
 const db = require("../db/connection");
 
-exports.deleteComment = async ({ comment_id }) => {
+exports.deleteComment = async (comment_id) => {
   const result = await db.query(
     `
   DELETE FROM comments
@@ -17,17 +17,11 @@ exports.deleteComment = async ({ comment_id }) => {
   return;
 };
 
-exports.updateComment = async ({ comment_id }, body) => {
+exports.updateComment = async (comment_id, body) => {
   if (!body.hasOwnProperty("inc_votes")) {
     return Promise.reject({
       status: 400,
       msg: "Request only accepts JSON with 'inc_votes' property",
-    });
-  }
-  if (Object.keys(body).length > 1) {
-    return Promise.reject({
-      status: 422,
-      msg: "Unprocessable entity found in request body",
     });
   }
   const result = await db.query(

@@ -76,14 +76,16 @@
         ​
 - `PATCH /api/reviews/:review_id`
   ​
+
   - [x] Status 200, updated single review object
         think this could be 2 test one that it returns a review and one to check the votes are increased
   - [x] Status 400, invalid ID, e.g. string of "not-an-id"
   - [x] Status 404, non existent ID, e.g. 0 or 9999
   - [x] Status 400, missing / incorrect body, e.g. `inc_votes` property is not a number, or missing
-        ​
-        400 bad request when no inc votes, watch out for extendability?
-        ​
+
+- [x] 400 bad request when no inc votes, watch out for extendability?
+      ​
+
 - `GET /api/reviews`
   ​
   - [x] Status 200, array of review objects (including `comment_count`, excluding `body`)
@@ -97,34 +99,29 @@
   - [x] Status 404. non-existent `category` query, e.g. `?category=bananas`
   - [x] Status 200. valid `category` query, but has no reviews responds with an empty array of reviews, e.g. `?category=children's games`
         ​
-        does it have a checks eshists category thingy
-        ​
 - `GET /api/reviews/:review_id/comments`
   ​
   - [x] Status 200, array of comment objects for the specified review
   - [x] Status 400, invalid ID, e.g. string of "not-an-id"
   - [x] Status 404, non existent ID, e.g. 0 or 9999
-  - [ ] Status 200, valid ID, but has no comments responds with an empty array of comments
+  - [x] Status 200, valid ID, but has no comments responds with an empty array of comments
         ​
 - `POST /api/reviews/:review_id/comments`
   ​
+
   - [x] Status 201, created comment object
   - [x] Status 400, invalid ID, e.g. string of "not-an-id"
   - [x] Status 404, non existent ID, e.g. 0 or 9999
   - [x] Status 400, missing required field(s), e.g. no username or body properties
   - [x] Status 404, username does not exist
-  - [ ] Status 201, ignores unnecessary properties
-        youre 422ing I thikn wee could just ignore extra props
+  - [x] Status 201, ignores unnecessary properties
+
 - `GET /api`
   ​
   - [ ] Status 200, JSON describing all the available endpoints
         ​
 
 ## Routing
-
-​
-good use of index but inconsistent
-​
 
 - [x] Split into api, categories, users, comments and reviews routers
 - [x] Use `.route` for endpoints that share the same path
@@ -135,12 +132,8 @@ good use of index but inconsistent
 ​
 
 - [x] Name functions and variables well
-      maybe the error handlers could be nemed better?
       ​
-- [ ] Add catch blocks to all model invocations (and don't mix use of`.catch(next);` and `.catch(err => next(err))`)
-      catch blocks missing in categories controller
-      ​
-      I dont like always passing in the req.params and req.body
+- [x] Add catch blocks to all model invocations (and don't mix use of`.catch(next);` and `.catch(err => next(err))`)
       ​
 
 ## Models
@@ -148,11 +141,10 @@ good use of index but inconsistent
 ​
 
 - Protected from SQL injection
-  - [ ] Using parameterized queries for values in `db.query` e.g `$1` and array of variables
+  - [x] Using parameterized queries for values in `db.query` e.g `$1` and array of variables
   - [ ] Sanitizing any data for tables/columns, e.g. whitelisting when using template literals or pg-format's `%s`
-- [ ] Consistently use either single object argument _**or**_ multiple arguments in model functions
+- [x] Consistently use either single object argument _**or**_ multiple arguments in model functions
 - [x] Use `LEFT JOIN` for comment counts
-      we are using it but not testing for it :(
       ​
 
 ## Errors
@@ -161,8 +153,6 @@ good use of index but inconsistent
 
 - [x] Use error handling middleware functions in app and extracted to separate directory/file
 - [x] Consistently use `Promise.reject` in either models _**OR**_ controllers
-      ​
-      Not 100% on board with code xxxxxx
       ​
 
 ## Extra Advanced Tasks

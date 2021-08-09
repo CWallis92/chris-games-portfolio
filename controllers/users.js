@@ -8,7 +8,8 @@ exports.getUsers = async (req, res) => {
 
 exports.getUserByUsername = async (req, res, next) => {
   try {
-    const user = await selectUserByUsername(req.params);
+    const { username } = req.params;
+    const user = await selectUserByUsername(username);
     res.status(200).send({ user });
   } catch (err) {
     next(err);
