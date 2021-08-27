@@ -161,7 +161,7 @@
 
 ### Easier
 
-​
+​- [ ] Add github actions stuff: Introduction to CI/CD
 
 - [ ] Patch: Edit an review body
 - [ ] Patch: Edit a comment body
